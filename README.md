@@ -1,0 +1,1 @@
+# dir_estrategica_comparator
