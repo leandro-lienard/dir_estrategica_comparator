@@ -134,27 +134,51 @@ Empresa: LTI Hs. Requeridas por Período: 6207 hs Períodos Requeridos: 1 Inglé
 def main():
     lineas = text_scrapped.splitlines()
     lineas_sin_vacias = [linea for linea in lineas if linea.strip()]
-
-    print("Start script, name of lines: ", len(lineas))
-    global empresa, horas, ingles, precio_min, precio_max, tipo_licitacion
     
-    for numero, linea in enumerate(lineas_sin_vacias, start=1):
-        if esRestoUnoDeTres(num=numero):
+    print("Start script, name of lines: ", len(lineas))
+    
+    # for numero, linea in enumerate(lineas_sin_vacias, start=1):
+    i = 0 
+    empresa = ""
+    horas =""
+    ingles = ""
+    precio_min =""
+    precio_max = "" 
+    tipo_licitacion = ""
+    linea = lineas_sin_vacias[i]
+    
+    while linea != "Proyecto ...":
+        linea = lineas_sin_vacias[i]
+                                       
+        if esMultiploDeTres(num=i):
             empresa = extrarDato(linea, EMPRESA_INICIO, EMPRESA_FIN)
-            
             horas = extrarDato(linea, HORAS_INICIO, HORAS_FIN)
-            ingles = extrarDato(linea, INGLES_INICIO, INGLES_FIN)   
-        
-        elif esRestoDosDeTres(num = numero):
+            ingles = extrarDato(linea, INGLES_INICIO, INGLES_FIN)
+            
+            if ("Paga:" in linea):
+                precio_min =  extrarDato(linea, "Paga: $", "&")
+                precio_max =  extrarDato(linea, "Paga: $", "&")
+        elif esRestoUnoDeTres(num = i):
             precio_min = extrarDato(linea, PRECIO_BASE_INICIO, PRECIO_BASE_FIN)
             precio_max = extrarDato(linea, PRECIO_TOPE_INICIO, PRECIO_TOPE_FIN)   
-        
         else :
             tipo_licitacion = linea[0:13]
             tipo_licitacion =  parsearTipoLicitacion(tipo_licitacion)
             print ( ";".join([empresa, horas, ingles, precio_min.replace(',',""), precio_max.replace(',',""), tipo_licitacion]) )
-         
-         
+        i = i + 1
+        
+    
+    for nro_linea, linea in enumerate(lineas_sin_vacias[i:], start=1):
+        if(nro_linea % 2 == 1):
+            empresa = extrarDato(linea, EMPRESA_INICIO, EMPRESA_FIN)
+            horas = extrarDato(linea, HORAS_INICIO, HORAS_FIN)
+            ingles = extrarDato(linea, INGLES_INICIO, INGLES_FIN)
+            precio_min =  extrarDato(linea, "Paga: $", "&")
+            precio_max =  extrarDato(linea, "Paga: $", "&")
+            print ( ";".join([empresa, horas, ingles, precio_min.replace(',',""), precio_max.replace(',',""), tipo_licitacion]) )
+ 
+                
+                        
 def parsearNumero(anString):
     return anString         
 
@@ -166,7 +190,7 @@ def parsearTipoLicitacion(tipo_licitacion):
     elif (tipo_licitacion == "Proyecto ..."): 
         return "Proyecto"
     else : 
-        return "NoMatch"
+        return "Proyecto"
 
 def extrarDato(parrafo, word_inicio, word_fin):
     partes = parrafo.split(word_inicio, 1)
